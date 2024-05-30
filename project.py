@@ -1,61 +1,52 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QLabel, QGridLayout, QPushButton
+from PyQt5.QtWidgets import QLabel, QGridLayout, QPushButton, QMessageBox, QApplication, QWidget
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 import keyboard
 
 
-class Ui_Form(object):
-    def setupUi(self, Form):
 
-        Form.setObjectName("Form")
-        Form.setFixedSize(800, 600)
-        width = Form.frameGeometry().width()
-        height = Form.frameGeometry().height()
+class Game_Form(QWidget):
+    def __init__(self):
+        super().__init__()
 
-        self.gridLayoutWidget = QtWidgets.QWidget(Form)
+        self.setFixedSize(800, 600)
+        width = self.frameGeometry().width()
+        height = self.frameGeometry().height()
+
+        self.gridLayoutWidget = QWidget(self)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 0, width, height))
-        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
 
         self.gridLayout = QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setAlignment(Qt.AlignCenter)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
-        self.gridLayout.setObjectName("gridLayout")
 
-        self.But_Up = QtWidgets.QPushButton(Form)
+        self.But_Up = QtWidgets.QPushButton(self)
         self.But_Up.setGeometry(QtCore.QRect(360, 490, 81, 23))
-        self.But_Up.setObjectName("pushButton_4")
-        self.But_Left = QtWidgets.QPushButton(Form)
+
+        self.But_Left = QtWidgets.QPushButton(self)
         self.But_Left.setGeometry(QtCore.QRect(300, 520, 81, 23))
-        self.But_Left.setObjectName("pushButton_5")
-        self.But_Right = QtWidgets.QPushButton(Form)
+
+        self.But_Right = QtWidgets.QPushButton(self)
         self.But_Right.setGeometry(QtCore.QRect(420, 520, 81, 23))
-        self.But_Right.setObjectName("pushButton_6")
-        self.But_Down = QtWidgets.QPushButton(Form)
+
+        self.But_Down = QtWidgets.QPushButton(self)
         self.But_Down.setGeometry(QtCore.QRect(360, 550, 81, 23))
-        self.But_Down.setObjectName("pushButton_7")
 
         self.But_Up.setText("↑")
         self.But_Left.setText("←")
         self.But_Right.setText("→")
         self.But_Down.setText("↓")
+        self.x = 22
+        self.y = 11
+        self.matrix = [['.', '.', '.', '.', 'W', 'W', 'W', 'W', 'W', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'], ['.', '.', '.', '.', 'W', '.', '.', '.', 'W', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'], ['.', '.', '.', '.', 'W', 'B', '.', '.', 'W', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'], ['.', '.', 'W', 'W', 'W', '.', '.', 'B', 'W', 'W', 'W', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'], ['.', '.', 'W', '.', '.', 'B', '.', '.', 'B', '.', 'W', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'], ['W', 'W', 'W', '.', 'W', '.', 'W', 'W', 'W', '.', 'W', '.', '.', '.', '.', '.', 'W', 'W', 'W', 'W', 'W', 'W'], ['W', '.', '.', '.', 'W', '.', 'W', 'W', 'W', '.', 'W', 'W', 'W', 'W', 'W', 'W', 'W', '.', '.', 'L', 'L', 'W'], ['W', '.', 'B', '.', '.', 'B', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', 'L', 'L', 'W'], ['W', 'W', 'W', 'W', 'W', '.', 'W', 'W', 'W', 'W', '.', 'W', 'H', 'W', 'W', 'W', 'W', '.', '.', 'L', 'L', 'W'], ['.', '.', '.', '.', 'W', '.', '.', '.', '.', '.', '.', 'W', 'W', 'W', '.', '.', 'W', 'W', 'W', 'W', 'W', 'W'], ['.', '.', '.', '.', 'W', 'W', 'W', 'W', 'W', 'W', 'W', 'W', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.']]
+        print(self.matrix)
+        self.position_box = [[2, 5], [3, 7], [4, 5], [4, 8], [7, 2], [7, 5]]
+        self.location = [[6, 19], [6, 20], [7, 19], [7, 20], [8, 19], [8, 20]]
+        self.position_player = [[8, 12]]
 
-        self.retranslateUi(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
-
-        self.matrix = [['W', 'W', 'W', 'W', 'W', 'W', 'W', 'W'],
-                  ['W', '.', '.', '.', '.', '.', '.', 'W'],
-                  ['W', '.', '.', '.', 'B', '.', '.', 'W'],
-                  ['W', '.', 'B', 'H', '.', '.', '.', 'W'],
-                  ['W', '.', '.', '.', '.', '.', '.', 'W'],
-                  ['W', '.', '.', '.', 'L', 'L', '.', 'W'],
-                  ['W', 'W', 'W', 'W', 'W', 'W', 'W', 'W']]
-        self.position_box = [[3, 2], [2, 4]]
-        self.location = [[5, 4], [5, 5]]
-        self.position_player = [[3, 3]]
-
-        for i in range(7):
-            for j in range(8):
+        for i in range(self.y):
+            for j in range(self.x):
                 if self.matrix[i][j] == 'B':
                     label = QLabel()
                     pixmap = QPixmap('images/crate9.png')
@@ -89,9 +80,18 @@ class Ui_Form(object):
 
         self.game()
 
+    def game(self):
+
+
+        self.But_Up.clicked.connect(lambda: self.check_up())
+        self.But_Down.clicked.connect(lambda: self.check_down())
+        self.But_Right.clicked.connect(lambda: self.check_right())
+        self.But_Left.clicked.connect(lambda: self.check_left())
+
     def update(self):
+
         self.count = 0
-        
+
         for i in reversed(range(self.gridLayout.count())):
             self.gridLayout.itemAt(i).widget().deleteLater()
 
@@ -108,8 +108,8 @@ class Ui_Form(object):
 
         self.matrix[self.position_player[0][0]][self.position_player[0][1]] = 'H'
 
-        for i in range(7):
-            for j in range(8):
+        for i in range(self.y):
+            for j in range(self.x):
                 if self.matrix[i][j] == 'B':
                     label = QLabel()
                     pixmap = QPixmap('images/crate9.png')
@@ -141,91 +141,146 @@ class Ui_Form(object):
                     self.gridLayout.addWidget(label, i, j)
 
         if self.count == len(self.location):
-            print('Victory')
-
-
+            self.victory()
 
     def check_up(self):
-        if (self.matrix[self.position_player[0][0] - 1][self.position_player[0][1]] == '.' or self.matrix[self.position_player[0][0] - 1][
-            self.position_player[0][1]] == 'L'):
+        if (self.matrix[self.position_player[0][0] - 1][self.position_player[0][1]] == '.' or
+                self.matrix[self.position_player[0][0] - 1][
+                    self.position_player[0][1]] == 'L'):
             self.matrix[self.position_player[0][0]][self.position_player[0][1]] = '.'
             self.position_player[0][0] = self.position_player[0][0] - 1
 
-        elif (self.matrix[self.position_player[0][0] - 1][self.position_player[0][1]] == 'B' or self.matrix[self.position_player[0][0] - 1][
-                    self.position_player[0][1]] == 'Q') and (self.matrix[self.position_player[0][0] - 2][self.position_player[0][1]] == '.' or self.matrix[self.position_player[0][0] - 2][
+        elif (self.matrix[self.position_player[0][0] - 1][self.position_player[0][1]] == 'B' or
+              self.matrix[self.position_player[0][0] - 1][
+                  self.position_player[0][1]] == 'Q') and (
+                self.matrix[self.position_player[0][0] - 2][self.position_player[0][1]] == '.' or
+                self.matrix[self.position_player[0][0] - 2][
                     self.position_player[0][1]] == 'L'):
             for i in range(len(self.position_box)):
-                if (self.position_player[0][0] - 1 == self.position_box[i][0]) and (self.position_player[0][1] == self.position_box[i][1]):
+                if (self.position_player[0][0] - 1 == self.position_box[i][0]) and (
+                        self.position_player[0][1] == self.position_box[i][1]):
                     self.matrix[self.position_box[i][0]][self.position_box[i][1]] = '.'
                     self.position_box[i][0] = self.position_box[i][0] - 1
         self.update()
 
     def check_down(self):
-        if (self.matrix[self.position_player[0][0] + 1][self.position_player[0][1]] == '.' or self.matrix[self.position_player[0][0] + 1][
-            self.position_player[0][1]] == 'L'):
+        if (self.matrix[self.position_player[0][0] + 1][self.position_player[0][1]] == '.' or
+                self.matrix[self.position_player[0][0] + 1][
+                    self.position_player[0][1]] == 'L'):
             self.matrix[self.position_player[0][0]][self.position_player[0][1]] = '.'
             self.position_player[0][0] = self.position_player[0][0] + 1
 
-        elif (self.matrix[self.position_player[0][0] + 1][self.position_player[0][1]] == 'B' or self.matrix[self.position_player[0][0] + 1][
-                    self.position_player[0][1]] == 'Q') and (self.matrix[self.position_player[0][0] + 2][self.position_player[0][1]] == '.' or self.matrix[self.position_player[0][0] + 2][
+        elif (self.matrix[self.position_player[0][0] + 1][self.position_player[0][1]] == 'B' or
+              self.matrix[self.position_player[0][0] + 1][
+                  self.position_player[0][1]] == 'Q') and (
+                self.matrix[self.position_player[0][0] + 2][self.position_player[0][1]] == '.' or
+                self.matrix[self.position_player[0][0] + 2][
                     self.position_player[0][1]] == 'L'):
             for i in range(len(self.position_box)):
-                if self.position_player[0][0] + 1 == self.position_box[i][0] and self.position_player[0][1] == self.position_box[i][1]:
+                if self.position_player[0][0] + 1 == self.position_box[i][0] and self.position_player[0][1] == \
+                        self.position_box[i][1]:
                     self.matrix[self.position_box[i][0]][self.position_box[i][1]] = '.'
                     self.position_box[i][0] = self.position_box[i][0] + 1
         self.update()
 
     def check_left(self):
-        if (self.matrix[self.position_player[0][0]][self.position_player[0][1] - 1] == '.' or self.matrix[self.position_player[0][0]][
-            self.position_player[0][1] - 1] == 'L'):
+        if (self.matrix[self.position_player[0][0]][self.position_player[0][1] - 1] == '.' or
+                self.matrix[self.position_player[0][0]][
+                    self.position_player[0][1] - 1] == 'L'):
             self.matrix[self.position_player[0][0]][self.position_player[0][1]] = '.'
             self.position_player[0][1] = self.position_player[0][1] - 1
 
-        elif (self.matrix[self.position_player[0][0]][self.position_player[0][1] - 1] == 'B' or self.matrix[self.position_player[0][0]][
-                    self.position_player[0][1] - 1] == 'Q') and (self.matrix[self.position_player[0][0]][self.position_player[0][1] - 2] == '.' or self.matrix[self.position_player[0][0]][
+        elif (self.matrix[self.position_player[0][0]][self.position_player[0][1] - 1] == 'B' or
+              self.matrix[self.position_player[0][0]][
+                  self.position_player[0][1] - 1] == 'Q') and (
+                self.matrix[self.position_player[0][0]][self.position_player[0][1] - 2] == '.' or
+                self.matrix[self.position_player[0][0]][
                     self.position_player[0][1] - 2] == 'L'):
             for i in range(len(self.position_box)):
-                if self.position_player[0][0] == self.position_box[i][0] and self.position_player[0][1] - 1 == self.position_box[i][1]:
+                if self.position_player[0][0] == self.position_box[i][0] and self.position_player[0][1] - 1 == \
+                        self.position_box[i][1]:
                     self.matrix[self.position_box[i][0]][self.position_box[i][1]] = '.'
                     self.position_box[i][1] = self.position_box[i][1] - 1
         self.update()
 
     def check_right(self):
-        if (self.matrix[self.position_player[0][0]][self.position_player[0][1] + 1] == '.' or self.matrix[self.position_player[0][0]][
-            self.position_player[0][1] + 1] == 'L'):
+        if (self.matrix[self.position_player[0][0]][self.position_player[0][1] + 1] == '.' or
+                self.matrix[self.position_player[0][0]][
+                    self.position_player[0][1] + 1] == 'L'):
             self.matrix[self.position_player[0][0]][self.position_player[0][1]] = '.'
             self.position_player[0][1] = self.position_player[0][1] + 1
 
-        elif (self.matrix[self.position_player[0][0]][self.position_player[0][1] + 1] == 'B' or self.matrix[self.position_player[0][0]][
-                    self.position_player[0][1] + 1] == 'Q') and (self.matrix[self.position_player[0][0]][self.position_player[0][1] + 2] == '.' or self.matrix[self.position_player[0][0]][
+        elif (self.matrix[self.position_player[0][0]][self.position_player[0][1] + 1] == 'B' or
+              self.matrix[self.position_player[0][0]][
+                  self.position_player[0][1] + 1] == 'Q') and (
+                self.matrix[self.position_player[0][0]][self.position_player[0][1] + 2] == '.' or
+                self.matrix[self.position_player[0][0]][
                     self.position_player[0][1] + 2] == 'L'):
             for i in range(len(self.position_box)):
-                if self.position_player[0][0] == self.position_box[i][0] and self.position_player[0][1] + 1 == self.position_box[i][1]:
+                if self.position_player[0][0] == self.position_box[i][0] and self.position_player[0][1] + 1 == \
+                        self.position_box[i][1]:
                     self.matrix[self.position_box[i][0]][self.position_box[i][1]] = '.'
                     self.position_box[i][1] = self.position_box[i][1] + 1
+
         self.update()
 
-    def game(self):
-        keyboard.add_hotkey('w', lambda: self.check_up())
-        keyboard.add_hotkey('s',lambda: self.check_down())
-        keyboard.add_hotkey('a', lambda: self.check_left())
-        keyboard.add_hotkey('d', lambda: self.check_right())
-        self.But_Up.clicked.connect(lambda: self.check_up())
-        self.But_Down.clicked.connect(lambda: self.check_down())
-        self.But_Right.clicked.connect(lambda: self.check_right())
-        self.But_Left.clicked.connect(lambda: self.check_left())
 
-    def retranslateUi(self, Form):
-        _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+    def victory(self):
+        msg = QMessageBox()
+        msg.setWindowTitle("Название окна")
+        msg.setText("Описание")
+        msg.setIcon(QMessageBox.Warning)
+        msg.exec()
+        exit()
+
+
+class Menu(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle('Menu')
+        self.setFixedSize(800, 600)
+
+        Title = QLabel(self)
+        Title.setText('Sokoban')
+        Title.setAlignment(QtCore.Qt.AlignHCenter)
+        Title.setGeometry(0,0,800,600)
+        font = QtGui.QFont()
+        font.setFamily("Pristina")
+        font.setPointSize(72)
+        Title.setFont(font)
+        Title.move(0,50)
+
+        self.Menu = QPushButton(self)
+        self.Menu.setGeometry(QtCore.QRect(250, 225, 300, 100))
+        font = QtGui.QFont()
+        font.setPointSize(38)
+        self.Menu.setFont(font)
+        self.Menu.setText('Меню')
+
+
+        self.Exit = QPushButton(self)
+        self.Exit.setGeometry(QtCore.QRect(250, 380, 300, 100))
+        font = QtGui.QFont()
+        font.setPointSize(38)
+        self.Exit.setFont(font)
+        self.Exit.setText('Выход')
+
+        self.button_clicks()
+
+    def button_clicks(self):
+        self.Exit.clicked.connect(lambda: exit())
+        self.Menu.clicked.connect(self.change_form)
+
+    def change_form(self):
+        self.close()
+        NewForm = Game_Form()
+        NewForm.show()
 
 
 if __name__ == "__main__":
     import sys
-
-    app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = Ui_Form()
-    ui.setupUi(Form)
+    app = QApplication(sys.argv)
+    Form = Menu()
     Form.show()
     sys.exit(app.exec_())
