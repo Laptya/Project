@@ -255,11 +255,11 @@ class Game_Form(QWidget):
 
 
     def victory(self):
-        msg = QMessageBox()
-        msg.setWindowTitle("Название окна")
-        msg.setText("Описание")
-        msg.setIcon(QMessageBox.Warning)
-        msg.exec()
+        self.msg = QMessageBox()
+        self.msg.setWindowTitle("Название окна")
+        self.msg.setText("Описание")
+        self.msg.setIcon(QMessageBox.Warning)
+        self.msg.exec()
         exit()
 
 
@@ -271,7 +271,6 @@ class Level_Choose(QWidget):
 
     def initUI(self):
         self.game_files = [file for file in os.listdir('./Levels') if file.endswith(".txt")]
-        print(self.game_files)
         self.setFixedSize(800, 600)
         vbox = QVBoxLayout(self)
 
@@ -310,10 +309,10 @@ class Level_Choose(QWidget):
                         location.append([i, j])
                 file.read(1)
                 matrix.append([*line])
-            New_Form = Game_Form()
-            New_Form.importa(matrix, x, y)
-            New_Form.start()
-            New_Form.show()
+            self.New_Form = Game_Form()
+            self.New_Form.importa(matrix, x, y)
+            self.New_Form.start()
+            self.New_Form.show()
             self.close()
 
 
@@ -361,8 +360,8 @@ class Menu(QWidget):
 
     def change_form(self):
         self.close()
-        NewForm = Level_Choose()
-        NewForm.show()
+        self.NewForm = Level_Choose()
+        self.NewForm.show()
 
 
 if __name__ == "__main__":
