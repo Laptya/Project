@@ -50,6 +50,7 @@ class Game_Form(QWidget):
         self.But_Left.setText("←")
         self.But_Right.setText("→")
         self.But_Down.setText("↓")
+        self.But_Exit.setText("Меню")
 
         self.position_box = []
         self.location = []
@@ -61,14 +62,14 @@ class Game_Form(QWidget):
             for j in range(self.x):
                 if self.matrix[i][j] == 'B':
                     label = QLabel()
-                    pixmap = QPixmap('images/crate9.png')
+                    pixmap = QPixmap('images/crate1.png')
                     label.setPixmap(pixmap)
                     self.position_box.append([i, j])
                     self.gridLayout.addWidget(label, i, j)
 
                 elif self.matrix[i][j] == 'W':
                     label = QLabel()
-                    pixmap = QPixmap('images/wall2.png')
+                    pixmap = QPixmap('images/wall.png')
                     label.setPixmap(pixmap)
                     self.gridLayout.addWidget(label, i, j)
 
@@ -81,7 +82,7 @@ class Game_Form(QWidget):
 
                 elif self.matrix[i][j] == 'Q':
                     label = QLabel()
-                    pixmap = QPixmap('images/crate10.png')
+                    pixmap = QPixmap('images/crate2.png')
                     label.setPixmap(pixmap)
                     self.gridLayout.addWidget(label, i, j)
 
@@ -102,6 +103,13 @@ class Game_Form(QWidget):
             self.But_Down.clicked.connect(lambda: self.check_down())
             self.But_Right.clicked.connect(lambda: self.check_right())
             self.But_Left.clicked.connect(lambda: self.check_left())
+            self.But_Exit.clicked.connect(lambda: self.Menu())
+
+    def Menu(self):
+        self.close()  # Закрываем текущее окно
+        self.newwForm = Menu()  # Создаем новый экземпляр Menu и сохраняем его в переменной класса
+        self.newwForm.show()  # Отображаем новое окно
+
 
     def update(self):
 
@@ -315,6 +323,7 @@ class Level_Choose(QWidget):
 class Menu(QWidget):
     def __init__(self):
         super().__init__()
+
 
         self.setWindowTitle('Menu')
         self.setFixedSize(800, 600)
