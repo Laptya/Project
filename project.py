@@ -7,22 +7,50 @@ import os
 
 
 class Game_Form(QWidget):
-
     def __init__(self):
         super().__init__()
-    def importa(self, matrix,x,y):
-        self.matrix = matrix
-        self.x = x
-        self.y = y
 
-
-
-    def start(self):
+    def start(self, file_number):
         self.setFixedSize(800, 600)
         width = self.frameGeometry().width()
         height = self.frameGeometry().height()
 
         self.setWindowTitle('Game')
+
+        self.current_levelnumber = file_number
+        self.game_files = [file for file in os.listdir('./Levels') if file.endswith(".txt")]
+        with open('./Levels/'+self.game_files[self.current_levelnumber], 'r') as file:
+            self.matrix = []
+            position_box = []
+            location = []
+            position_player = []
+            a = ''
+            while '\n' not in a:
+                a += file.read(1)
+            self.y = int(a)
+
+            a = ''
+            while '\n' not in a:
+                a += file.read(1)
+            self.x = int(a)
+
+            for i in range(self.y):
+                line = ''
+                for j in range(self.x):
+                    a = file.read(1)
+                    line += a
+                    if a == 'B':
+                        position_box.append([i, j])
+                    elif a == 'H':
+                        position_player.append([i, j])
+                    elif a == 'L':
+                        location.append([i, j])
+                file.read(1)
+                self.matrix.append([*line])
+
+
+
+
 
         self.gridLayoutWidget = QWidget(self)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(0, 0, width, height))
@@ -45,12 +73,15 @@ class Game_Form(QWidget):
 
         self.But_Exit = QtWidgets.QPushButton(self)
         self.But_Exit.setGeometry(QtCore.QRect(5, 5, 80, 60))
+        self.But_Restart = QtWidgets.QPushButton(self)
+        self.But_Restart.setGeometry(QtCore.QRect(5, 75, 80, 60))
 
         self.But_Up.setText("↑")
         self.But_Left.setText("←")
         self.But_Right.setText("→")
         self.But_Down.setText("↓")
         self.But_Exit.setText("Меню")
+        self.But_Restart.setText("Заново")
 
         self.position_box = []
         self.location = []
@@ -97,19 +128,45 @@ class Game_Form(QWidget):
         self.game()
 
     def game(self):
-
         if self.ready == True:
-            self.But_Up.clicked.connect(lambda: self.check_up())
-            self.But_Down.clicked.connect(lambda: self.check_down())
-            self.But_Right.clicked.connect(lambda: self.check_right())
-            self.But_Left.clicked.connect(lambda: self.check_left())
+            self.But_Up.clicked.connect(lambda: self.check(0,-1))
+            self.But_Down.clicked.connect(lambda: self.check(0,1))
+            self.But_Right.clicked.connect(lambda: self.check(1,0))
+            self.But_Left.clicked.connect(lambda: self.check(-1,0))
             self.But_Exit.clicked.connect(lambda: self.Menu())
+            self.But_Restart.clicked.connect(lambda: self.Restart())
+
+    def Restart(self):
+        self.close()
+        self.NewForm = Game_Form()
+        self.NewForm.start(self.current_levelnumber)
+        self.NewForm.show()
 
     def Menu(self):
-        self.close()  # Закрываем текущее окно
-        self.newwForm = Menu()  # Создаем новый экземпляр Menu и сохраняем его в переменной класса
-        self.newwForm.show()  # Отображаем новое окно
+        self.close()
+        self.newwForm = Menu()
+        self.newwForm.show()
 
+    def check(self, x, y):
+        self.ready = False
+        if (self.matrix[self.position_player[0][0] + y][self.position_player[0][1] + x] == '.' or
+                self.matrix[self.position_player[0][0] + y][self.position_player[0][1] + x] == 'L'):
+            self.matrix[self.position_player[0][0]][self.position_player[0][1]] = '.'
+            self.position_player[0][0] = self.position_player[0][0] + y
+            self.position_player[0][1] = self.position_player[0][1] + x
+
+        elif (self.matrix[self.position_player[0][0] + y][self.position_player[0][1] + x] == 'B' or
+              self.matrix[self.position_player[0][0] + y][self.position_player[0][1] + x] == 'Q') and (
+                self.matrix[self.position_player[0][0] + y * 2][self.position_player[0][1] + x * 2] == '.' or
+                self.matrix[self.position_player[0][0] + y * 2][self.position_player[0][1] + x * 2] == 'L'):
+            for i in range(len(self.position_box)):
+                if (self.position_player[0][0] + y == self.position_box[i][0]) and (
+                        self.position_player[0][1] + x == self.position_box[i][1]):
+                    self.matrix[self.position_box[i][0]][self.position_box[i][1]] = '.'
+                    self.position_box[i][0] = self.position_box[i][0] + y
+                    self.position_box[i][1] = self.position_box[i][1] + x
+
+        self.update()
 
     def update(self):
 
@@ -134,133 +191,46 @@ class Game_Form(QWidget):
         for i in range(self.y):
             for j in range(self.x):
                 if self.matrix[i][j] == 'B':
-                    label = QLabel()
-                    pixmap = QPixmap('images/crate1.png')
-                    label.setPixmap(pixmap)
-                    self.gridLayout.addWidget(label, i, j)
+                    self.label = QLabel()
+                    self.pixmap = QPixmap('images/crate1.png')
+                    self.label.setPixmap(self.pixmap)
+                    self.gridLayout.addWidget(self.label, i, j)
 
                 elif self.matrix[i][j] == 'W':
-                    label = QLabel()
-                    pixmap = QPixmap('images/wall.png')
-                    label.setPixmap(pixmap)
-                    self.gridLayout.addWidget(label, i, j)
+                    self.label = QLabel()
+                    self.pixmap = QPixmap('images/wall.png')
+                    self.label.setPixmap(self.pixmap)
+                    self.gridLayout.addWidget(self.label, i, j)
 
                 elif self.matrix[i][j] == 'H':
-                    label = QLabel()
-                    pixmap = QPixmap('images/hero.png')
-                    label.setPixmap(pixmap)
-                    self.gridLayout.addWidget(label, i, j)
+                    self.label = QLabel()
+                    self.pixmap = QPixmap('images/hero.png')
+                    self.label.setPixmap(self.pixmap)
+                    self.gridLayout.addWidget(self.label, i, j)
 
                 elif self.matrix[i][j] == 'Q':
-                    label = QLabel()
-                    pixmap = QPixmap('images/crate2.png')
-                    label.setPixmap(pixmap)
-                    self.gridLayout.addWidget(label, i, j)
+                    self.label = QLabel()
+                    self.pixmap = QPixmap('images/crate2.png')
+                    self.label.setPixmap(self.pixmap)
+                    self.gridLayout.addWidget(self.label, i, j)
 
                 elif self.matrix[i][j] == 'L':
-                    label = QLabel()
-                    pixmap = QPixmap('images/loc.png')
-                    label.setPixmap(pixmap)
-                    self.gridLayout.addWidget(label, i, j)
+                    self.label = QLabel()
+                    self.pixmap = QPixmap('images/loc.png')
+                    self.label.setPixmap(self.pixmap)
+                    self.gridLayout.addWidget(self.label, i, j)
         self.ready = True
 
         if self.count == len(self.location):
             self.victory()
 
-
-    def check_up(self):
-        self.ready = False
-        if (self.matrix[self.position_player[0][0] - 1][self.position_player[0][1]] == '.' or
-                self.matrix[self.position_player[0][0] - 1][
-                    self.position_player[0][1]] == 'L'):
-            self.matrix[self.position_player[0][0]][self.position_player[0][1]] = '.'
-            self.position_player[0][0] = self.position_player[0][0] - 1
-
-        elif (self.matrix[self.position_player[0][0] - 1][self.position_player[0][1]] == 'B' or
-              self.matrix[self.position_player[0][0] - 1][
-                  self.position_player[0][1]] == 'Q') and (
-                self.matrix[self.position_player[0][0] - 2][self.position_player[0][1]] == '.' or
-                self.matrix[self.position_player[0][0] - 2][
-                    self.position_player[0][1]] == 'L'):
-            for i in range(len(self.position_box)):
-                if (self.position_player[0][0] - 1 == self.position_box[i][0]) and (
-                        self.position_player[0][1] == self.position_box[i][1]):
-                    self.matrix[self.position_box[i][0]][self.position_box[i][1]] = '.'
-                    self.position_box[i][0] = self.position_box[i][0] - 1
-        self.update()
-
-    def check_down(self):
-        self.ready = False
-        if (self.matrix[self.position_player[0][0] + 1][self.position_player[0][1]] == '.' or
-                self.matrix[self.position_player[0][0] + 1][
-                    self.position_player[0][1]] == 'L'):
-            self.matrix[self.position_player[0][0]][self.position_player[0][1]] = '.'
-            self.position_player[0][0] = self.position_player[0][0] + 1
-
-        elif (self.matrix[self.position_player[0][0] + 1][self.position_player[0][1]] == 'B' or
-              self.matrix[self.position_player[0][0] + 1][
-                  self.position_player[0][1]] == 'Q') and (
-                self.matrix[self.position_player[0][0] + 2][self.position_player[0][1]] == '.' or
-                self.matrix[self.position_player[0][0] + 2][
-                    self.position_player[0][1]] == 'L'):
-            for i in range(len(self.position_box)):
-                if self.position_player[0][0] + 1 == self.position_box[i][0] and self.position_player[0][1] == \
-                        self.position_box[i][1]:
-                    self.matrix[self.position_box[i][0]][self.position_box[i][1]] = '.'
-                    self.position_box[i][0] = self.position_box[i][0] + 1
-        self.update()
-
-    def check_left(self):
-        self.ready = False
-        if (self.matrix[self.position_player[0][0]][self.position_player[0][1] - 1] == '.' or
-                self.matrix[self.position_player[0][0]][
-                    self.position_player[0][1] - 1] == 'L'):
-            self.matrix[self.position_player[0][0]][self.position_player[0][1]] = '.'
-            self.position_player[0][1] = self.position_player[0][1] - 1
-
-        elif (self.matrix[self.position_player[0][0]][self.position_player[0][1] - 1] == 'B' or
-              self.matrix[self.position_player[0][0]][
-                  self.position_player[0][1] - 1] == 'Q') and (
-                self.matrix[self.position_player[0][0]][self.position_player[0][1] - 2] == '.' or
-                self.matrix[self.position_player[0][0]][
-                    self.position_player[0][1] - 2] == 'L'):
-            for i in range(len(self.position_box)):
-                if self.position_player[0][0] == self.position_box[i][0] and self.position_player[0][1] - 1 == \
-                        self.position_box[i][1]:
-                    self.matrix[self.position_box[i][0]][self.position_box[i][1]] = '.'
-                    self.position_box[i][1] = self.position_box[i][1] - 1
-        self.update()
-
-    def check_right(self):
-        self.ready = False
-        if (self.matrix[self.position_player[0][0]][self.position_player[0][1] + 1] == '.' or
-                self.matrix[self.position_player[0][0]][
-                    self.position_player[0][1] + 1] == 'L'):
-            self.matrix[self.position_player[0][0]][self.position_player[0][1]] = '.'
-            self.position_player[0][1] = self.position_player[0][1] + 1
-
-        elif (self.matrix[self.position_player[0][0]][self.position_player[0][1] + 1] == 'B' or
-              self.matrix[self.position_player[0][0]][
-                  self.position_player[0][1] + 1] == 'Q') and (
-                self.matrix[self.position_player[0][0]][self.position_player[0][1] + 2] == '.' or
-                self.matrix[self.position_player[0][0]][
-                    self.position_player[0][1] + 2] == 'L'):
-            for i in range(len(self.position_box)):
-                if self.position_player[0][0] == self.position_box[i][0] and self.position_player[0][1] + 1 == \
-                        self.position_box[i][1]:
-                    self.matrix[self.position_box[i][0]][self.position_box[i][1]] = '.'
-                    self.position_box[i][1] = self.position_box[i][1] + 1
-
-        self.update()
-
-
     def victory(self):
-        self.msg = QMessageBox()
-        self.msg.setWindowTitle("Название окна")
-        self.msg.setText("Описание")
-        self.msg.setIcon(QMessageBox.Warning)
-        self.msg.exec()
-        exit()
+
+        self.New_Form = NextLevel()
+        self.New_Form.start(self.current_levelnumber)
+        self.New_Form.show()
+
+        self.close()
 
 
 class Level_Choose(QWidget):
@@ -278,46 +248,50 @@ class Level_Choose(QWidget):
             button = QPushButton(file_name)
             button.clicked.connect(lambda checked, fn=file_name: self.Level(fn))
             vbox.addWidget(button)
-            vbox.setSpacing(2)
+            vbox.setSpacing(10)
 
     def Level(self, file_name):
-        with open('./Levels/'+file_name, 'r') as file:
-            matrix = []
-            position_box = []
-            location = []
-            position_player = []
-            a = ''
-            while '\n' not in a:
-                a += file.read(1)
-            y = int(a)
+        file_number = self.game_files.index(file_name)
+        self.New_Form = Game_Form()
+        self.New_Form.start(file_number)
+        self.New_Form.show()
+        self.close()
 
-            a = ''
-            while '\n' not in a:
-                a += file.read(1)
-            x = int(a)
+class NextLevel(QWidget):
+    def __init__(self):
+        super().__init__()
 
-            for i in range(y):
-                line = ''
-                for j in range(x):
-                    a = file.read(1)
-                    line += a
-                    if a == 'B':
-                        position_box.append([i, j])
-                    elif a == 'H':
-                        position_player.append([i, j])
-                    elif a == 'L':
-                        location.append([i, j])
-                file.read(1)
-                matrix.append([*line])
-            self.New_Form = Game_Form()
-            self.New_Form.importa(matrix, x, y)
-            self.New_Form.start()
-            self.New_Form.show()
-            self.close()
+    def start(self, level_number):
+        self.setFixedSize(800, 600)
+        self.level_number = level_number
+        self.game_files = [file for file in os.listdir('./Levels') if file.endswith(".txt")]
+        self.Title = QLabel(self)
+        self.Title.setText('Уровень пройден')
+        self.Title.setAlignment(QtCore.Qt.AlignHCenter)
+        self.Title.setGeometry(0, 0, 800, 600)
+        self.Menu = QPushButton(self)
+        self.Menu.setText('Меню')
+        self.Menu.setGeometry(QtCore.QRect(250, 225, 300, 100))
+        if self.level_number + 1 == len(self.game_files):
+            self.Title2 = QLabel(self)
+            self.Title2.setText('Последний уровень')
+        else:
+            self.nextlevel = QPushButton(self)
+            self.nextlevel.setText('Следующий уровень')
+            self.nextlevel.setGeometry(QtCore.QRect(250, 380, 300, 100))
+            self.nextlevel.clicked.connect(lambda: self.NewLevel())
 
+        self.Menu.clicked.connect(lambda: self.ShowMenu())
 
-
-
+    def ShowMenu(self):
+        self.NewForm = Menu()
+        self.NewForm.show()
+        self.close()
+    def NewLevel(self):
+        self.NewForm = Game_Form()
+        self.NewForm.start(self.level_number + 1)
+        self.NewForm.show()
+        self.close()
 
 class Menu(QWidget):
     def __init__(self):
