@@ -1,10 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QLabel, QGridLayout, QPushButton, QMessageBox, QApplication, QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QLabel, QGridLayout, QPushButton, QMessageBox, QApplication, QWidget, QVBoxLayout, QScrollArea
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 import os
-
-
 
 class Game_Form(QWidget):
     def __init__(self):
@@ -87,7 +85,6 @@ class Game_Form(QWidget):
         self.location = []
         self.position_player = []
         self.ready = True
-
 
         for i in range(self.y):
             for j in range(self.x):
@@ -225,30 +222,38 @@ class Game_Form(QWidget):
             self.victory()
 
     def victory(self):
-
         self.New_Form = NextLevel()
         self.New_Form.start(self.current_levelnumber)
         self.New_Form.show()
-
         self.close()
-
 
 class Level_Choose(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Level_Change')
+        self.setWindowTitle('Level_Choose')
         self.initUI()
 
     def initUI(self):
         self.game_files = [file for file in os.listdir('./Levels') if file.endswith(".txt")]
         self.setFixedSize(800, 600)
-        vbox = QVBoxLayout(self)
+
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidgetResizable(True)
+
+        content_widget = QWidget()
+        scroll_area.setWidget(content_widget)
+
+        vbox = QVBoxLayout(content_widget)
 
         for file_name in self.game_files:
             button = QPushButton(file_name)
             button.clicked.connect(lambda checked, fn=file_name: self.Level(fn))
             vbox.addWidget(button)
             vbox.setSpacing(10)
+
+        main_layout = QVBoxLayout(self)
+        main_layout.addWidget(scroll_area)
+
 
     def Level(self, file_name):
         file_number = self.game_files.index(file_name)
@@ -306,23 +311,23 @@ class Menu(QWidget):
         Title.setAlignment(QtCore.Qt.AlignHCenter)
         Title.setGeometry(0,0,800,600)
         font = QtGui.QFont()
-        font.setFamily("Pristina")
-        font.setPointSize(72)
+        font.setFamily("Agency FB")
+        font.setPointSize(96)
         Title.setFont(font)
         Title.move(0,50)
 
         self.Menu = QPushButton(self)
         self.Menu.setGeometry(QtCore.QRect(250, 225, 300, 100))
         font = QtGui.QFont()
-        font.setPointSize(38)
+        font.setPointSize(32)
         self.Menu.setFont(font)
-        self.Menu.setText('Меню')
+        self.Menu.setText('Выбор уровня')
 
 
         self.Exit = QPushButton(self)
         self.Exit.setGeometry(QtCore.QRect(250, 380, 300, 100))
         font = QtGui.QFont()
-        font.setPointSize(38)
+        font.setPointSize(32)
         self.Exit.setFont(font)
         self.Exit.setText('Выход')
 
@@ -336,7 +341,6 @@ class Menu(QWidget):
         self.close()
         self.NewForm = Level_Choose()
         self.NewForm.show()
-
 
 if __name__ == "__main__":
     import sys
